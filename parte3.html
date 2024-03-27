@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Fila de Trânsito</title>
+<style>
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4; 
+        height: 100vh;
+        background-image: url('image/cinza.jpg');
+        background-size: cover;
+        background-position: center;
+        overflow: hidden; 
+    }
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+        position: relative; 
+    }
+    th {
+        background-color: #f2f2f2; 
+        font-weight: bold;
+        color: #555;
+    }
+    .reload-btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff; 
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .reload-btn:hover {
+        background-color: #0056b3; 
+    }
+    .res-a {
+        background-color: #ffc107; 
+        color: #000;
+    }
+    .res-b {
+        background-color: #dc3545; 
+        color: #fff;
+    }
+    .res-c {
+        background-color: #28a745; 
+        color: #fff;
+    }
+    .status-icon {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        width: 35px;
+        height: 35px;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Dashboard de Fila de Trânsito</h2>
+    <table id="queue-table">
+        <thead>
+            <tr>
+                <th>Res</th>
+                <th>Dia</th>
+                <th>Nome</th>
+                <th>Sobrenome</th>
+                <th>Hora</th>
+                <th>Data</th>
+                <th>Motivo</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <button class="reload-btn" onclick="reloadPage()">Recarregar</button>
+</div>
+<script>
+    
+    async function fetchData() {
+        const url = 'https://niloweb.com.br/transit-room/api/reg_endpoint_all.php';
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            const tableBody = document.querySelector('#queue-table tbody');
+            tableBody.innerHTML = ''; 
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.classList.add(`res-${item.res.toLowerCase()}`);
+                row.innerHTML = `
+                    <td><img class="status-icon" src="image/${getStatusIcon(item.res)}"></td>
+                    <td>${item.dia}</td>
+                    <td>${item.nome}</td>
+                    <td>${item.sobrenome}</td>
+                    <td>${item.hora}</td>
+                    <td>${item.data}</td>
+                    <td>${item.motivo}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Erro ao buscar dados:', error);
+        }
+    }
+
+    function getStatusIcon(status) {
+        switch (status) {
+            case 'L':
+                return 'Chick_Hickscerto.png'; 
+            case 'A':
+                return 'cruz.png'; 
+            case 'B':
+                return 'mcqueen.png'; 
+            default:
+                return 'sem-imagem.png'; 
+        }
+    }
+
+    
+    function reloadPage() {
+        location.reload();
+    }
+    
+    window.onload = fetchData;
+</script>
+</body>
+</html>

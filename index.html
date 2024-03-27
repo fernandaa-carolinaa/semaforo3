@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semáforo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('image/cinza.jpg');
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        #imageContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            flex-direction: column;
+        }
+
+        img {
+            max-width: 200px; 
+            height: auto;
+            margin: 20px;
+            animation: fadeIn 1s ease;
+        }
+
+        h1 {
+            color: white;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+   
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+</head>
+<body>
+
+<nav>
+    <h1>Semáforo</h1>
+</nav>
+
+<div id="imageContainer">
+   
+</div>
+
+<audio id="audio" src="vrummm.mp3" preload="auto"></audio> 
+ 
+<script>
+    let lastStatus = '';
+    function shoot() {
+        confetti({
+            spread: 360,
+            ticks: 50,
+            gravity: 0,
+            decay: 0.94,
+            startVelocity: 30,
+            shapes: ["star"],
+            colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
+            particleCount: 40,
+            scalar: 1.2,
+            shapes: ["star"],
+        });
+
+        confetti({
+            spread: 360,
+            ticks: 50,
+            gravity: 0,
+            decay: 0.94,
+            startVelocity: 30,
+            shapes: ["star"],
+            colors: ["FFE400", "FFBD00", "E89400", "FFCA6C", "FDFFB8"],
+            particleCount: 10,
+            scalar: 0.75,
+            shapes: ["circle"],
+        });
+    }
+
+    
+    function carregarImagem() {
+        fetch('https://niloweb.com.br/transit-room/api/reg_endpoint.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data[0] && data[0].res) {
+                    const condition = data[0].res;
+                    if (lastStatus !== condition) { 
+                        lastStatus = condition; 
+
+                        shoot(); 
+                    }
+                    const imagem = document.createElement('img');
+                    const titulo = document.createElement('h2');
+                    switch(condition) {
+                        case 'A':
+                            imagem.src = "image/cruz.png";
+                            titulo.textContent = "Aguarde"
+                            break;
+                        case 'B':
+                            imagem.src = "image/mcqueen.png";
+                            titulo.textContent = "Bloqueado"
+                            break;
+                        case 'L':
+                            imagem.src = "image/Chick_Hickscerto.png";
+                            titulo.textContent = "Liberado"
+                            document.getElementById('audio').play().then(() => {
+                                    console.log('Áudio reproduzido com sucesso após interação do usuário.');
+                                }).catch(error => {
+                                    console.error('Erro ao reproduzir áudio:', error);
+                                }); 
+                            
+                            break;
+                        default:
+                            console.error('Condição desconhecida:', condition);
+                    }
+                    document.getElementById('imageContainer').innerHTML = ''; 
+                    document.getElementById('imageContainer').appendChild(imagem);
+                    document.getElementById('imageContainer').appendChild(titulo);
+                } else {
+                    console.error('Erro ao carregar imagem da API.');
+                }
+
+                som();
+
+            })
+            .catch(error => {
+                console.error('Erro ao conectar à API:', error);
+            });
+    }
+    function Som(){
+        const som = new Audio('vrummmm.mp3');
+        som.onended = function(){
+
+        };
+        som.play();
+    }
+
+    window.onload = function() {
+
+        carregarImagem();
+ 
+        setInterval(carregarImagem, 50000);
+    };
+    
+</script>
+</body>
+</html>
